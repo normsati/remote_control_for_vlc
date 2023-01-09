@@ -24,35 +24,36 @@ void main() async {
     var prefs = await SharedPreferences.getInstance();
     runApp(VlcRemote(prefs: prefs, settings: Settings(prefs)));
   }, (error, stackTrace) async {
-    if (showingErrorDialog ||
-        navigatorKey.currentState?.overlay?.context == null) {
-      return;
-    }
-    showingErrorDialog = true;
-    await showDialog(
-      context: navigatorKey.currentState!.overlay!.context,
-      builder: (context) => AlertDialog(
-        title: const Text('Unhandled Error'),
-        content: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              Text('$error\n\n$stackTrace'),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('COPY ERROR DETAILS'),
-            onPressed: () {
-              Clipboard.setData(
-                ClipboardData(text: '$error\n\n$stackTrace'),
-              );
-            },
-          )
-        ],
-      ),
-    );
-    showingErrorDialog = false;
+    print('$error\n\n$stackTrace');
+    // if (showingErrorDialog ||
+    //     navigatorKey.currentState?.overlay?.context == null) {
+    //   return;
+    // }
+    // showingErrorDialog = true;
+    // await showDialog(
+    //   context: navigatorKey.currentState!.overlay!.context,
+    //   builder: (context) => AlertDialog(
+    //     title: const Text('Unhandled Error'),
+    //     content: SingleChildScrollView(
+    //       child: Column(
+    //         children: <Widget>[
+    //           Text('$error\n\n$stackTrace'),
+    //         ],
+    //       ),
+    //     ),
+    //     actions: <Widget>[
+    //       TextButton(
+    //         child: const Text('COPY ERROR DETAILS'),
+    //         onPressed: () {
+    //           Clipboard.setData(
+    //             ClipboardData(text: '$error\n\n$stackTrace'),
+    //           );
+    //         },
+    //       )
+    //     ],
+    //   ),
+    // );
+    // showingErrorDialog = false;
   });
 }
 
@@ -69,6 +70,7 @@ class VlcRemote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       title: 'Remote Control for VLC',
       theme: ThemeData(

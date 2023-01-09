@@ -1183,14 +1183,37 @@ class _RemoteControlState extends State<RemoteControl> {
       return;
     }
 
+    print('input: ${result.item.playlistUri} | ${result.intent}');
+
+    _emptyPlaylist();
+    await wait();
+
+    if (result.item.playlistUri.endsWith('.m3u')) {
+      if (!_loop) {
+        toggleLoop();
+      }
+    } else {
+      if (_loop) {
+        toggleLoop();
+      }
+    }
+
     _statusRequest({
-      'command':
-          result.intent == BrowseResultIntent.play ? 'in_play' : 'in_enqueue',
+      'command': 'in_play',
       'input': result.item.playlistUri,
     });
     _scheduleSingleUpdate();
   }
   //#endregion
+
+  toggleLoop() {
+    _statusCommand('pl_loop');
+    setState(() {
+      _loop = !_loop;
+    });
+  }
+
+  wait() => Future.delayed(const Duration(milliseconds: 100));
 
   @override
   Widget build(BuildContext context) {
@@ -1204,13 +1227,9 @@ class _RemoteControlState extends State<RemoteControl> {
               child: ListTile(
                 contentPadding: const EdgeInsets.only(left: 14),
                 dense: widget.settings.dense,
-                title: Text(
-                  _playing == null && _title.isEmpty
-                      ? 'Remote Control for VLC 1.5.0'
-                      : _playing?.title ??
-                          cleanVideoTitle(_title.split(RegExp(r'[\\/]')).last),
+                title: const Text('Remote Control for VLC 1.5.0',
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1223,19 +1242,19 @@ class _RemoteControlState extends State<RemoteControl> {
                         tooltip: 'Refresh VLC status',
                       ),
                     ),
-                    Visibility(
-                      visible: _lastStatusResponseCode == 200,
-                      child: GestureDetector(
-                        onLongPress: _toggleEqualizer,
-                        child: IconButton(
-                          color: _equalizer?.enabled == true
-                              ? theme.primaryColor
-                              : null,
-                          icon: const Icon(Icons.equalizer),
-                          onPressed: _showEqualizer,
-                        ),
-                      ),
-                    ),
+                    // Visibility(
+                    //   visible: _lastStatusResponseCode == 200,
+                    //   child: GestureDetector(
+                    //     onLongPress: _toggleEqualizer,
+                    //     child: IconButton(
+                    //       color: _equalizer?.enabled == true
+                    //           ? theme.primaryColor
+                    //           : null,
+                    //       icon: const Icon(Icons.equalizer),
+                    //       onPressed: _showEqualizer,
+                    //     ),
+                    //   ),
+                    // ),
                     Visibility(
                       visible: _lastStatusResponseCode == 200,
                       child: PopupMenuButton<_PopupMenuChoice>(
@@ -1556,25 +1575,25 @@ class _RemoteControlState extends State<RemoteControl> {
                     : ConnectionAnimation(showSettings: _showSettings),
               ),
             ),
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: TweenAnimationBuilder<double>(
-              tween: Tween<double>(begin: 0, end: _showFab ? 1 : 0),
-              duration: const Duration(milliseconds: 250),
-              curve: _showFab ? Curves.easeOut : Curves.easeIn,
-              builder: (context, scale, child) => ScaleTransition(
-                scale: AlwaysStoppedAnimation<double>(scale),
-                child: FloatingActionButton(
-                  onPressed: _openMedia,
-                  child: const Icon(
-                    Icons.eject,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // Positioned(
+          //   right: 16,
+          //   bottom: 16,
+          //   child: TweenAnimationBuilder<double>(
+          //     tween: Tween<double>(begin: 0, end: _showFab ? 1 : 0),
+          //     duration: const Duration(milliseconds: 250),
+          //     curve: _showFab ? Curves.easeOut : Curves.easeIn,
+          //     builder: (context, scale, child) => ScaleTransition(
+          //       scale: AlwaysStoppedAnimation<double>(scale),
+          //       child: FloatingActionButton(
+          //         onPressed: _openMedia,
+          //         child: const Icon(
+          //           Icons.eject,
+          //           color: Colors.white,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
           Positioned.fill(
             child: Column(
               children: <Widget>[
@@ -1793,15 +1812,12 @@ class _RemoteControlState extends State<RemoteControl> {
               child: Row(
                 // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  GestureDetector(
-                    onTap: _toggleLooping,
-                    child: Icon(
-                      _repeat ? Icons.repeat_one : Icons.repeat,
-                      color: _repeat || _loop
-                          ? theme.primaryColor
-                          : theme.disabledColor,
-                      size: 30,
-                    ),
+                  Icon(
+                    _repeat ? Icons.repeat_one : Icons.repeat,
+                    color: _repeat || _loop
+                        ? theme.primaryColor
+                        : theme.disabledColor,
+                    size: 30,
                   ),
                   const Expanded(child: VerticalDivider()),
                   GestureDetector(
@@ -1869,10 +1885,10 @@ class _RemoteControlState extends State<RemoteControl> {
                   ),
                   const Expanded(child: VerticalDivider()),
                   GestureDetector(
-                    onTap: _toggleRandom,
+                    onTap: _openMedia,
                     child: Icon(
-                      Icons.shuffle,
-                      color: _random ? theme.primaryColor : theme.disabledColor,
+                      Icons.eject,
+                      color: theme.primaryColor,
                       size: 30,
                     ),
                   ),

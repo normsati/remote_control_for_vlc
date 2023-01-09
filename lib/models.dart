@@ -364,7 +364,7 @@ class VlcStatusResponse {
   Equalizer get equalizer {
     var equalizer = Equalizer();
     var el = document.rootElement.findElements('equalizer').first;
-    equalizer.enabled = el.firstChild != null;
+    equalizer.enabled = false; //el.firstChild != null;
     if (!equalizer.enabled) {
       return equalizer;
     }
